@@ -1,0 +1,16 @@
+C:\Users\AlvaLynsis\Desktop\AisBuchungApi-master\AisBuchung_Api\AisBuchung_Api\obj\Debug\netcoreapp2.2\AisBuchung_Api.csprojAssemblyReference.cache
+C:\Users\AlvaLynsis\Desktop\AisBuchungApi-master\AisBuchung_Api\AisBuchung_Api\obj\Debug\netcoreapp2.2\AisBuchung_Api.RazorAssemblyInfo.cache
+C:\Users\AlvaLynsis\Desktop\AisBuchungApi-master\AisBuchung_Api\AisBuchung_Api\obj\Debug\netcoreapp2.2\AisBuchung_Api.RazorAssemblyInfo.cs
+C:\Users\AlvaLynsis\Desktop\AisBuchungApi-master\AisBuchung_Api\AisBuchung_Api\obj\Debug\netcoreapp2.2\AisBuchung_Api.AssemblyInfoInputs.cache
+C:\Users\AlvaLynsis\Desktop\AisBuchungApi-master\AisBuchung_Api\AisBuchung_Api\obj\Debug\netcoreapp2.2\AisBuchung_Api.AssemblyInfo.cs
+C:\Users\wanwitfe\source\repos\AIs_Buchung2\obj\Debug\netcoreapp2.2\AisBuchung_Api.AssemblyInfoInputs.cache
+C:\Users\wanwitfe\source\repos\AIs_Buchung2\obj\Debug\netcoreapp2.2\AisBuchung_Api.AssemblyInfo.cs
+C:\Users\wanwitfe\source\repos\AIs_Buchung2\obj\Debug\netcoreapp2.2\AisBuchung_Api.csproj.CoreCompileInputs.cache
+C:\Users\wanwitfe\source\repos\AIs_Buchung2\obj\Debug\netcoreapp2.2\AisBuchung_Api.RazorAssemblyInfo.cache
+C:\Users\wanwitfe\source\repos\AIs_Buchung2\obj\Debug\netcoreapp2.2\AisBuchung_Api.RazorAssemblyInfo.cs
+H:\Profil.V6\source\repos\AIs_Buchung\obj\Debug\netcoreapp2.2\AisBuchung_Api.csprojAssemblyReference.cache
+H:\Profil.V6\source\repos\AIs_Buchung\obj\Debug\netcoreapp2.2\AisBuchung_Api.AssemblyInfoInputs.cache
+H:\Profil.V6\source\repos\AIs_Buchung\obj\Debug\netcoreapp2.2\AisBuchung_Api.AssemblyInfo.cs
+H:\Profil.V6\source\repos\AIs_Buchung\obj\Debug\netcoreapp2.2\AisBuchung_Api.csproj.CoreCompileInputs.cache
+H:\Profil.V6\source\repos\AIs_Buchung\obj\Debug\netcoreapp2.2\AisBuchung_Api.RazorAssemblyInfo.cache
+H:\Profil.V6\source\repos\AIs_Buchung\obj\Debug\netcoreapp2.2\AisBuchung_Api.RazorAssemblyInfo.cs

@@ -1,0 +1,14 @@
+{
+	"aufbewahrungsfrist": 14,
+	"uidLänge": 8,
+	"alleHabenDebugRechte": "True",
+	"adminsHabenDebugRechte": "False",
+	"debugBerechtigungErlaubtAlles": "False",
+	"passwortRichtlinien": {
+		"erfordertZiffer": "True",
+		"erfordertGroßbuchstaben": "True",
+		"erfordertKleinbuchstaben": "True",
+		"erfordertSonderzeichen": "True",
+		"mindestlänge": 8
+	}
+}
