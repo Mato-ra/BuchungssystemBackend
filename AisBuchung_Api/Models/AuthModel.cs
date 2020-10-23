@@ -156,6 +156,17 @@ namespace AisBuchung_Api.Models
             
         }
 
+        public string GetPermissions(LoginData loginData)
+        {
+            var id = GetLoggedInOrganizer(loginData);
+            var result = new Dictionary<string, string>();
+            Json.AddKeyValuePair(result, "veranstalterRechte", Convert.ToInt16(CheckIfOrganizerPermissions(id)).ToString(), true);
+            Json.AddKeyValuePair(result, "adminRechte", Convert.ToInt16(CheckIfAdminPermissions(id)).ToString(), true);
+            Json.AddKeyValuePair(result, "debugRechte", Convert.ToInt16(CheckIfDebugPermissions(id)).ToString(), true);
+            Json.AddKeyValuePair(result, "alleRechte", Convert.ToInt16(CheckIfAllPermissions(id)).ToString(), true);
+            return Json.SerializeObject(result);
+        }
+
         public bool CheckIfPasswordIsValid(string password, out string errorMessage)
         {
             return new DataValidation().CheckIfPasswordIsValid(password, out errorMessage);

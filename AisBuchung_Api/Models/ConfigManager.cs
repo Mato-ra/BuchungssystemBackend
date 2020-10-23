@@ -27,12 +27,8 @@ namespace AisBuchung_Api.Models
             var configObject = new Dictionary<string, string>();
             Json.AddKeyValuePair(configObject, "verifizierungsfrist", "0.5", true);
             Json.AddKeyValuePair(configObject, "aufbewahrungsfrist", "14", true);
+            Json.AddKeyValuePair(configObject, "datenbereinigungInterval", "0,25", true);
             Json.AddKeyValuePair(configObject, "uidLänge", "8", true);
-            /*
-            Json.AddKeyValuePair(configObject, "alleHabenDebugRechte", bool.FalseString, true);
-            Json.AddKeyValuePair(configObject, "adminsHabenDebugRechte", bool.FalseString, true);
-            Json.AddKeyValuePair(configObject, "debugBerechtigungErlaubtAlles", bool.FalseString, true);
-            */
             Json.AddKeyValuePair(configObject, "debugKonfigurationen", Json.SerializeObject(GetDefaultDebugConfigurations()), true);
             Json.AddKeyValuePair(configObject, "passwortRichtlinien", Json.SerializeObject(GetDefaultPasswordRequirements()), true);
             return configObject;
@@ -44,6 +40,7 @@ namespace AisBuchung_Api.Models
             Json.AddKeyValuePair(result, "alleHabenDebugRechte", bool.FalseString, true);
             Json.AddKeyValuePair(result, "adminsHabenDebugRechte", bool.FalseString, true);
             Json.AddKeyValuePair(result, "debugBerechtigungErlaubtAlles", bool.FalseString, true);
+            Json.AddKeyValuePair(result, "debugKonsoleIstAktiv", bool.FalseString, true);
             return result;
         }
 
@@ -86,12 +83,12 @@ namespace AisBuchung_Api.Models
 
         public static double GetVerificationTimeInDays()
         {
-            return Convert.ToDouble(GetConfigValue("verifizierungsfrist"));
+            return Convert.ToDouble(GetConfigValue("verifizierungsfrist"), System.Globalization.CultureInfo.InvariantCulture);
         }
 
         public static TimeSpan GetRetentionPeriodTimeSpan()
         {
-            var days = Convert.ToDouble(GetConfigValue("aufbewahrungsfrist"));
+            var days = Convert.ToDouble(GetConfigValue("aufbewahrungsfrist"), System.Globalization.CultureInfo.InvariantCulture);
             return TimeSpan.FromDays(days);
         }
 
@@ -124,6 +121,18 @@ namespace AisBuchung_Api.Models
         {
             return Convert.ToBoolean(GetConfigValue(new string[] { "debugKonfigurationen", "debugBerechtigungErlaubtAlles" }));
         }
+
+        public static bool CheckIfDebugConsoleIsEnabled()
+        {
+            return Convert.ToBoolean(GetConfigValue(new string[] { "debugKonfigurationen", "debugKonsoleIstAktiv" }));
+        }
+
+        public static double GetCleanUpInterval()
+        {
+            var result = GetConfigValue("datenbereinigungInterval");
+            return Convert.ToDouble(result, System.Globalization.CultureInfo.InvariantCulture);
+        }
+
 
         public static Dictionary<string, string> GetPasswordRequirements()
         {

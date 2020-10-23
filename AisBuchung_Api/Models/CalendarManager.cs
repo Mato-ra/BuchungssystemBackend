@@ -81,11 +81,11 @@ namespace AisBuchung_Api.Models
 
             e.Organizer = new Organizer();
             e.Organizer.CommonName = calendarId.ToString();
-            e.Summary = ep.name;
-            e.Description = ep.beschreibung;
-            e.Location = ep.ort;
-            e.DtStart = new CalDateTime(GetDateTime(eventPost.datum.PadLeft(8, '0'), eventPost.startzeit.PadLeft(4, '0')), "Europe/Berlin");
-            e.DtEnd = new CalDateTime(GetDateTime(eventPost.datum.PadLeft(8, '0'), eventPost.endzeit.PadLeft(4, '0')), "Europe/Berlin");
+            e.Summary = (ep.name);
+            e.Description = (ep.beschreibung);
+            e.Location = (ep.ort);
+            e.DtStart = new CalDateTime(GetDateTime(eventPost.datum.ToString().PadLeft(8, '0'), eventPost.startzeit.ToString().PadLeft(4, '0')), "Europe/Berlin");
+            e.DtEnd = new CalDateTime(GetDateTime(eventPost.datum.ToString().PadLeft(8, '0'), eventPost.endzeit.ToString().PadLeft(4, '0')), "Europe/Berlin");
             e.DtStamp = new CalDateTime(DateTime.Now, "Europe/Berlin");
 
             return true;

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 using JsonSerializer;
@@ -19,6 +20,11 @@ namespace AisBuchung_Api.Models
         public string AddNewCode(long userId, double days)
         {
             var code = GenerateUniqueCode();
+            if (true)
+            {
+                Console.WriteLine($"<{DateTime.Now}> Neuer e-Mail-Verifizierungscode generiert: {code}");
+            }
+
             var dt = DateTime.Now.AddDays(days);
             var dateTime = CalendarManager.GetDateTime(dt);
             var dict = new Dictionary<string, string> {

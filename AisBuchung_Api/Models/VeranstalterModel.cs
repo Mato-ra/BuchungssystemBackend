@@ -29,6 +29,13 @@ namespace AisBuchung_Api.Models
             return databaseManager.ReadFirstAsJsonObject(GetOrganizerKeyTableDictionary(), r, null);
         }
 
+        public string GetOrganizer(string email)
+        {
+            var command = $"SELECT * FROM Veranstalter INNER JOIN Nutzerdaten ON Veranstalter.Id=Nutzerdaten.Id WHERE Email=@email AND Autorisiert=1 AND Verifiziert=1";
+            var r = databaseManager.ExecuteReader(command, new DatabaseManager.Parameter("@email", Microsoft.Data.Sqlite.SqliteType.Text, email));
+            return databaseManager.ReadFirstAsJsonObject(GetOrganizerKeyTableDictionary(), r, null);
+        }
+
         public string GetOrganizerCalendars(long organizerId)
         {
             var reader = databaseManager.ExecuteReader($"SELECT * FROM Kalenderberechtigte WHERE Veranstalter={organizerId}");
@@ -46,6 +53,13 @@ namespace AisBuchung_Api.Models
         public long PostOrganizer(OrganizerPost organizerPost, out string errorMessage)
         {
             errorMessage = String.Empty;
+
+            if (GetOrganizer(organizerPost.email) != null)
+            {
+                errorMessage = "Mit dieser e-Mail-Adresse wurde bereits ein Nutzer registriert.";
+                return -1;
+            }
+
             var id = new NutzerModel().PostUser(organizerPost.ToUserPost());
             if (id == -1)
             {
@@ -93,7 +107,20 @@ namespace AisBuchung_Api.Models
                 return false;
             }
 
-            return databaseManager.ExecutePut("Veranstalter", id, new Dictionary<string, string> { { "autorisiert", "1" } });
+            var email = Json.DeserializeString(Json.GetValue(user, "email", false));
+
+            if (databaseManager.ExecutePut("Veranstalter", id, new Dictionary<string, string> { { "autorisiert", "1" } }))
+            {
+                var ids = databaseManager.ExecuteReader("SELECT a.Id FROM Veranstalter a INNER JOIN Nutzerdaten b ON (a.Id = b.Id) WHERE Email = @email AND Autorisiert = 0", new DatabaseManager.Parameter("@email", Microsoft.Data.Sqlite.SqliteType.Text, email));
+                var re = databaseManager.ReadAsJsonArray(new Dictionary<string, string> { { "id", "Id" } }, ids);
+                databaseManager.ExecuteNonQuery($"DELETE FROM Veranstalter WHERE Id IN (SELECT a.Id FROM Veranstalter a INNER JOIN Nutzerdaten b ON (a.Id=b.Id) WHERE Email=@email AND Autorisiert=0)", new DatabaseManager.Parameter("@email", Microsoft.Data.Sqlite.SqliteType.Text, email));
+                //TODO Nichtautorisierte Veranstalter löschen
+                return true;
+            }
+            else
+            {
+                return false;
+            }
         }
 
         public Dictionary<string, string> GetOrganizerKeyTableDictionary()

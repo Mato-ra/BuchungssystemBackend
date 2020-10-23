@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using System.IO;
+using System.Runtime.CompilerServices;
+using System.Timers;
 
 namespace AisBuchung_Api.Models
 {
@@ -16,6 +18,7 @@ namespace AisBuchung_Api.Models
             new EmailverifizierungenModel().WipeUnnecessaryData();
             new TeilnehmerModel().WipeUnnecessaryData();
             new NutzerModel().WipeUnnecessaryData();
+
         }
 
         public void ClearData()
@@ -56,6 +59,13 @@ namespace AisBuchung_Api.Models
             }
 
             return true;
+        }
+
+        public static void CallWipeUnnecessaryData(Object source, ElapsedEventArgs e)
+        {
+            new DatenModel().WipeUnnecessaryData();
+
+            Console.WriteLine($"<{DateTime.Now}> Datenbereinigung wurde aufgerufen.");
         }
     }
 }

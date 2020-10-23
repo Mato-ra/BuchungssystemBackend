@@ -131,6 +131,7 @@ namespace AisBuchung_Api.Models
                 {"teilnehmerzahl", "Teilnehmerzahl" },
                 {"teilnehmerlimit", "Teilnehmerlimit" },
                 {"anmeldefrist", "Anmeldefrist" },
+                {"öffentlich", "Öffentlich" },
             };
         }
 
@@ -142,12 +143,13 @@ namespace AisBuchung_Api.Models
         public long kalender { get; set; }
         public string name { get; set; }
         public string beschreibung { get; set; }
-        public string datum { get; set; }
-        public string startzeit { get; set; }
-        public string endzeit { get; set; }
+        public int datum { get; set; }
+        public int startzeit { get; set; }
+        public int endzeit { get; set; }
         public string ort { get; set; }
         public int teilnehmerlimit { get; set; }
-        public string anmeldefrist { get; set; }
+        public int öffentlich { get; set; }
+        public long anmeldefrist { get; set; }
 
         public Dictionary<string, string> ToDictionary()
         {
@@ -155,19 +157,27 @@ namespace AisBuchung_Api.Models
             {
                 {"Teilnehmerlimit", teilnehmerlimit.ToString() },
             };
-            if (anmeldefrist == null)
+            if (anmeldefrist < Convert.ToInt64(CalendarManager.GetDateTime(DateTime.Now)))
             {
-                if (startzeit != null)
+                if (new DataValidation().CheckIfIntegerIsValid(startzeit.ToString(), 4, false))
                 {
-                    anmeldefrist = datum + startzeit;
+                    anmeldefrist = Convert.ToInt64(datum + startzeit.ToString().PadLeft(4, '0'));
                 }
                 else
                 {
-                    anmeldefrist = datum + "2359";
+                    anmeldefrist = Convert.ToInt64(datum + "2359");
                 }
             }
 
-            result["Anmeldefrist"] = anmeldefrist;
+            result["Anmeldefrist"] = anmeldefrist.ToString();
+            if (öffentlich == 1)
+            {
+                result["Öffentlich"] = "1";
+            }
+            else
+            {
+                result["Öffentlich"] = "0";
+            }
 
             return result;
         }
@@ -178,9 +188,9 @@ namespace AisBuchung_Api.Models
             return 
                 validation.CheckIfNameIsValid(name) &&
                 validation.CheckIfTextIsValid(beschreibung) &&
-                //datum
-                //startzeit
-                //endzeit
+                //validation.CheckIfIntegerIsValid(datum, 8, false) &&
+                //validation.CheckIfIntegerIsValid(startzeit, 4, false) &&
+                //validation.CheckIfIntegerIsValid(endzeit, 4, false) &&
                 validation.CheckIfTextIsValid(ort) &&
                 //anmeldefrist
                 true;

@@ -56,6 +56,37 @@ namespace AisBuchung_Api.Models
                 return false;
             }
 
+            if (name.Length == 0)
+            {
+                return false;
+            }
+
+            return true;
+        }
+
+        public bool CheckIfIntegerIsValid(string number, int digitMax, bool allowNegative)
+        {
+            if (!CheckIfTextIsValid(number))
+            {
+                return false;
+            }
+
+            var num = 0;
+            if (!int.TryParse(number, out num))
+            {
+                return false;
+            }
+
+            if (allowNegative || num < 0)
+            {
+                return false;
+            }
+
+            if (number.Length == 0 || Math.Abs(num).ToString().Length > digitMax)
+            {
+                return false;
+            }
+
             return true;
         }
 

@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore;
 using AisBuchung_Api.Models;
 using Microsoft.AspNetCore.Http;
+using JsonSerializer;
 
 namespace AisBuchung_Api.Controllers
 {
@@ -28,10 +29,15 @@ namespace AisBuchung_Api.Controllers
             var result = auth.GetLoggedInOrganizerData(loginPost);
             if (result == null)
             {
-                return Unauthorized();
+                result = auth.GetPermissions(loginPost);
+                var response = Content(result, "application/json");
+                response.StatusCode = 401;
+                return response;
             }
             else
             {
+
+                result = Json.MergeObjects(new string[] { result, auth.GetPermissions(loginPost) }, true);
                 return Content(result, "application/json");
             }
         }

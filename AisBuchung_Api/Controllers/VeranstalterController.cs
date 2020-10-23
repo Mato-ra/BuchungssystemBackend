@@ -88,7 +88,7 @@ namespace AisBuchung_Api.Controllers
             }
             else
             {
-                return BadRequest();
+                return auth.CreateErrorMessageResponse(errorMessage, 400);
             }
         }
 

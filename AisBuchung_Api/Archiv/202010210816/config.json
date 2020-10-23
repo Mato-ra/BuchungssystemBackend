@@ -1,13 +1,10 @@
 {
-	"verifizierungsfrist": 0.5,
 	"aufbewahrungsfrist": 14,
-	"datenbereinigungInterval": 0.001,
 	"uidLänge": 8,
 	"debugKonfigurationen": {
-		"alleHabenDebugRechte": "False",
+		"alleHabenDebugRechte": "True",
 		"adminsHabenDebugRechte": "False",
-		"debugBerechtigungErlaubtAlles": "False",
-		"debugKonsoleIstAktiv": "False"
+		"debugBerechtigungErlaubtAlles": "True"
 	},
 	"passwortRichtlinien": {
 		"erfordertZiffer": "True",
