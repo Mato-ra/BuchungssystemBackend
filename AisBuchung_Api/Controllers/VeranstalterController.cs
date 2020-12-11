@@ -92,12 +92,38 @@ namespace AisBuchung_Api.Controllers
             }
         }
 
+        [HttpPost("anlegen")]
+        public ActionResult<IEnumerable<string>> PostNewOrganizer(OrganizerPost organizerPost)
+        {
+            if (!auth.CheckIfAdminPermissions(organizerPost))
+            {
+                return Unauthorized();
+            }
+
+            var validation = new DataValidation();
+            var errorMessage = String.Empty;
+            if (!validation.CheckIfPasswordIsValid(organizerPost.passwort, out errorMessage))
+            {
+                return auth.CreateErrorMessageResponse(errorMessage);
+            };
+
+            var result = model.PostOrganizer(organizerPost, out errorMessage);
+            if (result > 0)
+            {
+                return Ok();
+            }
+            else
+            {
+                return auth.CreateErrorMessageResponse(errorMessage, 400);
+            }
+        }
+
         [HttpPost("{id}/passwort")]
         public ActionResult<IEnumerable<string>> PostPassword(long id, PasswordPost passwordPost)
         {
             var errorMessage = String.Empty;
 
-            if (!auth.CheckIfAdminPermissions(passwordPost))
+            if (!auth.CheckIfOrganizerPermissions(passwordPost))
             {
                 return Unauthorized();
             }
@@ -118,7 +144,6 @@ namespace AisBuchung_Api.Controllers
                     return Unauthorized();
                 }
             }
-
             
             if (!model.PostPassword(id, passwordPost, out errorMessage))
             {
@@ -126,6 +151,24 @@ namespace AisBuchung_Api.Controllers
             }
 
             return Ok();
+        }
+
+        [HttpPost("{id}/email")]
+        public ActionResult<IEnumerable<string>> ChangeEmail(EmailPost emailPost, long id)
+        {
+            if (!auth.CheckIfOrganizerPermissions(emailPost, id))
+            {
+                return Unauthorized();
+            }
+
+            if (model.ChangeEmail(id, emailPost))
+            {
+                return NoContent();
+            }
+            else
+            {
+                return BadRequest();
+            }
         }
 
         [HttpPut("{id}")]
@@ -176,15 +219,27 @@ namespace AisBuchung_Api.Controllers
                 return Unauthorized();
             }
 
-            var result = model.AuthorizeOrganizer(id);
+            
 
-            if (result)
+            if (model.AuthorizeOrganizer(id))
             {
                 return NoContent();
             }
             else
             {
-                return NotFound();
+                if (auth.CheckIfAdminPermissions(loginPost) && ConfigManager.CheckIfAdminsCanVerify())
+                {
+                    if (model.AuthorizeOrganizer(id))
+                    {
+                        return NoContent();
+                    }
+                    else
+                    {
+                        return BadRequest();
+                    }
+                }
+
+                return BadRequest();
             }
         }
     }

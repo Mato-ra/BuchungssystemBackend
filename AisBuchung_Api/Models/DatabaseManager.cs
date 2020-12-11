@@ -59,6 +59,8 @@ namespace AisBuchung_Api.Models
                 $"CREATE TABLE Teilnehmer (Id INTEGER PRIMARY KEY AUTOINCREMENT, Veranstaltung INTEGER NOT NULL, Nutzer INTEGER NOT NULL)",
                 $"CREATE TABLE Veranstalter (Id INTEGER PRIMARY KEY, Passwort TEXT NOT NULL, Autorisiert INTEGER NOT NULL)",
                 $"CREATE TABLE Veranstaltungen (Id INTEGER PRIMARY KEY AUTOINCREMENT, Uid TEXT NOT NULL, Anmeldefrist INTEGER NOT NULL, Teilnehmerlimit INTEGER NOT NULL, Teilnehmerzahl INTEGER NOT NULL, Öffentlich INTEGER NOT NULL)",
+                $"CREATE TABLE Emailänderungen (Id INTEGER PRIMARY KEY AUTOINCREMENT, Emailverifizierung INTEGER NOT NULL, NeueEmail TEXT NOT NULL)",
+
             };
 
             ExecuteNonQuery(createCommands);

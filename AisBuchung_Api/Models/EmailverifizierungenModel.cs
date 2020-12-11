@@ -4,6 +4,8 @@ using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 using JsonSerializer;
+using System.Net;
+using System.Net.Mail;
 
 namespace AisBuchung_Api.Models
 {
@@ -43,6 +45,25 @@ namespace AisBuchung_Api.Models
             }
         }
 
+        public long AddNewCodeGetId(long userId, double days)
+        {
+            var code = GenerateUniqueCode();
+            if (true)
+            {
+                Console.WriteLine($"<{DateTime.Now}> Neuer e-Mail-Verifizierungscode generiert: {code}");
+            }
+
+            var dt = DateTime.Now.AddDays(days);
+            var dateTime = CalendarManager.GetDateTime(dt);
+            var dict = new Dictionary<string, string> {
+                {"Nutzer", userId.ToString() },
+                {"Zeitfrist", dateTime },
+                {"Code", code },
+            };
+
+            return databaseManager.ExecutePost("Emailverifizierungen", dict);
+        }
+
         public void WipeUnnecessaryData()
         {
             var dateTime = CalendarManager.GetDateTime(DateTime.Now);
@@ -65,10 +86,13 @@ namespace AisBuchung_Api.Models
         {
             var dateTime = CalendarManager.GetDateTime(DateTime.Now);
             var reader = databaseManager.ExecuteReader($"SELECT * FROM Emailverifizierungen WHERE Code=@code AND Zeitfrist>={dateTime}", new DatabaseManager.Parameter("@code", Microsoft.Data.Sqlite.SqliteType.Text, code));
-            var r = databaseManager.ReadFirstAsJsonObject(new Dictionary<string, string> { { "nutzer", "Nutzer" } }, reader, null);
+            var r = databaseManager.ReadFirstAsJsonObject(new Dictionary<string, string> { { "id", "Id"}, { "nutzer", "Nutzer" } }, reader, null);
             var id = Convert.ToInt64(Json.GetKvpValue(r, "nutzer", false));
+            var cid = Convert.ToInt64(Json.GetKvpValue(r, "id", false));
             if (new NutzerModel().VerifyUser(id) > 0)
             {
+                //TODO: Emailänderung
+
                 DeleteVerificationCode(GetVerificationCodeId(code));
                 return true;
             }
@@ -94,6 +118,39 @@ namespace AisBuchung_Api.Models
         public bool DeleteVerificationCode(long id)
         {
             return databaseManager.ExecuteDelete("Emailverifizierungen", id);
+        }
+
+        public void SendVerificationMail(string code, string emailAdress)
+        {
+            var link = ConfigManager.GetVerificationLink() + code;
+
+            var content = $"Bitte verifizieren Sie Ihre e-Mail über diesen Link: {link}";
+
+            //SendEmail("Emailverifizierung", content, emailAdress);
+        }
+
+        public void SendEmail(string subject, string content, string emailAdress)
+        {
+            var message = new MailMessage();
+            var smtp = new SmtpClient();
+
+            var ml = ConfigManager.GetVerificationMailAdress();
+            var pw = ConfigManager.GetVerificationMailPassword();
+
+            message.From = new MailAddress(ml);
+            message.To.Add(new MailAddress(emailAdress));
+            message.Subject = subject;
+            message.IsBodyHtml = true;
+            message.Body = content;
+
+            smtp.Port = ConfigManager.GetVerificationMailPort();
+            smtp.Host = ConfigManager.GetVerificationMailHost();
+            smtp.EnableSsl = true;
+            smtp.UseDefaultCredentials = false;
+            smtp.Credentials = new NetworkCredential(ml, pw);
+            smtp.DeliveryMethod = SmtpDeliveryMethod.Network;
+
+            smtp.Send(message);
         }
 
         public Dictionary<string, string> GetKeyTableDictionary()

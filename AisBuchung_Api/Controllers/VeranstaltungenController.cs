@@ -33,10 +33,9 @@ namespace AisBuchung_Api.Controllers
             return Content(result, "application/json");
         }
 
-        [HttpGet("{calendar}")]
-        public ActionResult<IEnumerable<string>> GetCalendarEvents(string calendar)
+        [HttpGet("{calendarId}")]
+        public ActionResult<IEnumerable<string>> GetCalendarEvents(long calendarId)
         {
-            var calendarId = new KalenderModel().GetCalendarId(calendar);
             if (calendarId == -1)
             {
                 return NotFound();
@@ -48,10 +47,9 @@ namespace AisBuchung_Api.Controllers
             return Content(result, "application/json");
         }
 
-        [HttpGet("{calendar}/{uid}")]
-        public ActionResult<IEnumerable<string>> GetEvent(string calendar, string uid)
+        [HttpGet("{calendarId}/{uid}")]
+        public ActionResult<IEnumerable<string>> GetEvent(long calendarId, string uid)
         {
-            var calendarId = new KalenderModel().GetCalendarId(calendar);
             if (calendarId == -1)
             {
                 return NotFound();
@@ -65,10 +63,9 @@ namespace AisBuchung_Api.Controllers
             return Content(result, "application/json");
         }
 
-        [HttpDelete("{calendar}/{uid}")]
-        public ActionResult<IEnumerable<string>> DeleteEvent(LoginPost loginPost, string calendar, string uid)
+        [HttpDelete("{calendarId}/{uid}")]
+        public ActionResult<IEnumerable<string>> DeleteEvent(LoginPost loginPost, long calendarId, string uid)
         {
-            var calendarId = new KalenderModel().GetCalendarId(calendar);
             if (calendarId == -1)
             {
                 return NotFound();
@@ -88,10 +85,9 @@ namespace AisBuchung_Api.Controllers
             }
         }
 
-        [HttpPost("{calendar}")]
-        public ActionResult<IEnumerable<string>> PostEvent(EventPost eventPost, string calendar)
+        [HttpPost("{calendarId}")]
+        public ActionResult<IEnumerable<string>> PostEvent(EventPost eventPost, long calendarId)
         {
-            var calendarId = new KalenderModel().GetCalendarId(calendar);
             if (calendarId == -1)
             {
                 return NotFound();
@@ -105,8 +101,8 @@ namespace AisBuchung_Api.Controllers
             
             if (result != null)
             {
-                var path = $"{HttpContext.Request.Scheme}://{HttpContext.Request.Host.Value}/veranstaltungen/{calendar}/{result}";
-                return Created(path, null);
+                result = Json.AddKeyValuePair(Json.CreateNewObject(), "uid", result, true);
+                return Content(result, "application/json");
             }
             else
             {
@@ -114,10 +110,9 @@ namespace AisBuchung_Api.Controllers
             }
         }
 
-        [HttpPut("{calendar}/{uid}")]
-        public ActionResult<IEnumerable<string>> PutEvent(EventPost eventPost, string calendar, string uid)
+        [HttpPut("{calendarId}/{uid}")]
+        public ActionResult<IEnumerable<string>> PutEvent(EventPost eventPost, long calendarId, string uid)
         {
-            var calendarId = new KalenderModel().GetCalendarId(calendar);
             if (calendarId == -1)
             {
                 return NotFound();

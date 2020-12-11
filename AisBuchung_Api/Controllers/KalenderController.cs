@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore;
 using AisBuchung_Api.Models;
+using JsonSerializer;
 
 namespace AisBuchung_Api.Controllers
 {
@@ -36,8 +37,8 @@ namespace AisBuchung_Api.Controllers
             var result = model.PostCalendar(calendarPost);
             if (result > 0)
             {
-                var path = $"{HttpContext.Request.Scheme}://{HttpContext.Request.Host.Value}/kalender/{result}";
-                return Created(path, null);
+                var path = Json.AddKeyValuePair(Json.CreateNewObject(), "id", result.ToString(), true);
+                return Content(path, "application/json");
             }
             else
             {
@@ -54,6 +55,25 @@ namespace AisBuchung_Api.Controllers
             }
 
             var result = model.GetCalendarOrganizers(calendarId);
+            if (result != null)
+            {
+                return Content(result, "application/json");
+            }
+            else
+            {
+                return NotFound();
+            }
+        }
+
+        [HttpGet("{calendarId}/veranstaltungen")]
+        public ActionResult<IEnumerable<string>> GetEvents(long calendarId, LoginPost loginPost)
+        {
+            if (!auth.CheckIfOrganizerPermissions(loginPost))
+            {
+                return Unauthorized();
+            }
+
+            var result = new VeranstaltungenModel().GetEvents(calendarId, null);
             if (result != null)
             {
                 return Content(result, "application/json");

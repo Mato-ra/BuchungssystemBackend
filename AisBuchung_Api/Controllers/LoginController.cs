@@ -38,6 +38,24 @@ namespace AisBuchung_Api.Controllers
             {
 
                 result = Json.MergeObjects(new string[] { result, auth.GetPermissions(loginPost) }, true);
+                if (loginPost.ml != null && loginPost.pw != null)
+                {
+                    var token = auth.BuildToken(loginPost.ml, loginPost.HashPassword(loginPost.pw));
+                    if (token != null)
+                    {
+                        result = Json.AddKeyValuePair(result, "token", token, true);
+                    }
+                }
+
+                if (loginPost.id > 0 && loginPost.pw != null)
+                {
+                    var token = auth.BuildToken(loginPost.id, loginPost.HashPassword(loginPost.pw));
+                    if (token != null)
+                    {
+                        result = Json.AddKeyValuePair(result, "token", token, true);
+                    }
+                }
+
                 return Content(result, "application/json");
             }
         }

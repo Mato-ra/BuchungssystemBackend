@@ -7,6 +7,10 @@ using System.Security.Cryptography;
 using System.ComponentModel.Design;
 using Microsoft.AspNetCore.Mvc;
 using System.Text;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
+using System.Security.Claims;
+using System.IdentityModel.Tokens.Jwt;
 
 namespace AisBuchung_Api.Models
 {
@@ -117,7 +121,28 @@ namespace AisBuchung_Api.Models
 
         public long GetLoggedInOrganizer(LoginData loginData)
         {
+            var result = GetLoggedInOrganizer(loginData.token);
+            if (result != -1)
+            {
+                return result;
+            }
+
+            if (loginData.id > 0)
+            {
+                result = GetLoggedInOrganizer(loginData.id, loginData.HashPassword(loginData.pw));
+                if (result != -1)
+                {
+                    return result;
+                }
+            }
+            
+
             return GetLoggedInOrganizer(loginData.ml, loginData.HashPassword(loginData.pw));
+        }
+
+        public long GetLoggedInOrganizer(string token)
+        {
+            return AuthenticateToken(token);
         }
 
         public long GetLoggedInOrganizer(string email, string password)
@@ -142,9 +167,37 @@ namespace AisBuchung_Api.Models
             }
         }
 
+        public long GetLoggedInOrganizer(long id, string password)
+        {
+            if (password == null)
+            {
+                return -1;
+            }
+
+            var result = databaseManager.GetId($"SELECT * FROM Veranstalter INNER JOIN Nutzerdaten ON Veranstalter.Id=Nutzerdaten.Id " +
+                $"WHERE Id=@id AND Passwort=@password AND Verifiziert=1 AND Autorisiert=1", new DatabaseManager.Parameter[] {
+                    new DatabaseManager.Parameter("@id", Microsoft.Data.Sqlite.SqliteType.Integer, id.ToString()),
+                    new DatabaseManager.Parameter("@password", Microsoft.Data.Sqlite.SqliteType.Text, password)});
+
+            if (result != null)
+            {
+                return Convert.ToInt64(result);
+            }
+            else
+            {
+                return -1;
+            }
+        }
+
         public string GetLoggedInOrganizerData(LoginData loginData)
         {
-            var id = GetLoggedInOrganizer(loginData);
+            var id = GetLoggedInOrganizer(loginData.token);
+            if (id != -1)
+            {
+                return new VeranstalterModel().GetOrganizer(id);
+            }
+
+            id = GetLoggedInOrganizer(loginData.ml, loginData.HashPassword(loginData.pw));
             if (id == -1)
             {
                 return null;
@@ -184,12 +237,123 @@ namespace AisBuchung_Api.Models
             response.StatusCode = statusCode;
             return response;
         }
+
+        public string BuildToken(long id, string password)
+        {
+            var email = new VeranstalterModel().GetOrganizerEmail(id);
+
+            if (!CheckIfOrganizerPermissions(GetLoggedInOrganizer(email, password)))
+            {
+                return null;
+            };
+
+            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(ConfigManager.GetTokenKey()));
+            var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
+            var issuer = "http://localhost:5000";
+            var audience = "http://localhost:5000";
+            var jwtValidity = DateTime.Now.AddDays(ConfigManager.GetTokenExpiry());
+            var claims = new Claim[]
+            {
+                new Claim(ClaimTypes.NameIdentifier, email, ClaimValueTypes.Integer64)
+            };
+
+            var token = new JwtSecurityToken(issuer,
+              audience,
+              claims: claims,
+              expires: jwtValidity,
+              signingCredentials: creds);
+
+            return new JwtSecurityTokenHandler().WriteToken(token);
+        }
+
+        public string BuildToken(string email, string password)
+        {
+            var id = GetLoggedInOrganizer(email, password);
+            if (!CheckIfOrganizerPermissions(id))
+            {
+                return null;
+            };
+
+            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(ConfigManager.GetTokenKey()));
+            var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
+            var issuer = "http://localhost:5000";
+            var audience = "http://localhost:5000";
+            var jwtValidity = DateTime.Now.AddDays(ConfigManager.GetTokenExpiry());
+            var claims = new Claim[]
+            {
+                new Claim(ClaimTypes.NameIdentifier, id.ToString(), ClaimValueTypes.Integer64)
+            };
+
+            var token = new JwtSecurityToken(issuer,
+              audience,
+              claims: claims,
+              expires: jwtValidity,
+              signingCredentials: creds);
+
+            return new JwtSecurityTokenHandler().WriteToken(token);
+        }
+
+        private long AuthenticateToken(string token)
+        {
+            if (token == null)
+            {
+                return -1;
+            }
+
+            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(ConfigManager.GetTokenKey()));
+            var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
+            //List<Exception> validationFailures = null;
+            SecurityToken validatedToken;
+            var validator = new JwtSecurityTokenHandler();
+
+            // These need to match the values used to generate the token
+            TokenValidationParameters validationParameters = new TokenValidationParameters();
+            validationParameters.ValidIssuer = "http://localhost:5000";
+            validationParameters.ValidAudience = "http://localhost:5000";
+            validationParameters.RequireExpirationTime = true;
+            validationParameters.IssuerSigningKey = key;
+            validationParameters.ValidateIssuerSigningKey = true;
+            validationParameters.ValidateAudience = true;
+            validationParameters.ValidateLifetime = true;
+
+            if (validator.CanReadToken(token))
+            {
+                System.Security.Claims.ClaimsPrincipal principal;
+                try
+                {
+                    // This line throws if invalid
+                    principal = validator.ValidateToken(token, validationParameters, out validatedToken);
+                    
+
+                    // If we got here then the token is valid
+
+                    //TODO: Zu ID wechseln
+                    if (principal.HasClaim(c => c.Type == ClaimTypes.NameIdentifier))
+                    {
+                        var id = Convert.ToInt64(principal.Claims.Where(c => c.Type == ClaimTypes.NameIdentifier).First().Value);
+                        if (new VeranstalterModel().GetOrganizer(id) != null)
+                        {
+                            return id;
+                        }
+                        
+                    }
+                }
+                catch (Exception e)
+                {
+                    return -1;
+                }
+            }
+
+            return -1;
+        }
     }
 
     public abstract class LoginData
     {
+        public long id { get; set; }
         public string ml { get; set; }
         public string pw { get; set; }
+        public string token { get; set; }
         public abstract bool CheckIfPostDataIsValid();
         public string HashPassword(string password)
         {

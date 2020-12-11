@@ -25,33 +25,56 @@ namespace AisBuchung_Api.Models
         public static Dictionary<string, string> GetDefaultConfiguration()
         {
             var configObject = new Dictionary<string, string>();
-            Json.AddKeyValuePair(configObject, "verifizierungsfrist", "0.5", true);
             Json.AddKeyValuePair(configObject, "aufbewahrungsfrist", "14", true);
-            Json.AddKeyValuePair(configObject, "datenbereinigungInterval", "0,25", true);
+            Json.AddKeyValuePair(configObject, "datenbereinigungInterval", "0.25", true);
             Json.AddKeyValuePair(configObject, "uidLänge", "8", true);
+            Json.AddKeyValuePair(configObject, "emailVerifizierung", Json.SerializeObject(GetVerificationEmailConfigurations()), true);
             Json.AddKeyValuePair(configObject, "debugKonfigurationen", Json.SerializeObject(GetDefaultDebugConfigurations()), true);
             Json.AddKeyValuePair(configObject, "passwortRichtlinien", Json.SerializeObject(GetDefaultPasswordRequirements()), true);
+            Json.AddKeyValuePair(configObject, "tokenKonfigurationen", Json.SerializeObject(GetDefaultTokenConfigurations()), true);
             return configObject;
+        }
+
+        public static Dictionary<string, string> GetVerificationEmailConfigurations()
+        {
+            var result = new Dictionary<string, string>();
+            Json.AddKeyValuePair(result, "verifizierungsfrist", "0.5", true);
+            Json.AddKeyValuePair(result, "verifizierungslink", "frontend.de/verifizieren/", true);
+            Json.AddKeyValuePair(result, "emailAdresse", "mail@bbw.de", true);
+            Json.AddKeyValuePair(result, "emailPasswort", "r23crm0evfiw1", true);
+            Json.AddKeyValuePair(result, "emailHost", "smtp.mail.yahoo.com", true);
+            Json.AddKeyValuePair(result, "emailPort", "587", true);
+            Json.AddKeyValuePair(result, "automatischeVerifizierung", bool.FalseString.ToLower(), true);
+            Json.AddKeyValuePair(result, "adminsKönnenVerifizieren", bool.FalseString.ToLower(), true);
+            return result;
         }
 
         public static Dictionary<string, string> GetDefaultDebugConfigurations()
         {
             var result = new Dictionary<string, string>();
-            Json.AddKeyValuePair(result, "alleHabenDebugRechte", bool.FalseString, true);
-            Json.AddKeyValuePair(result, "adminsHabenDebugRechte", bool.FalseString, true);
-            Json.AddKeyValuePair(result, "debugBerechtigungErlaubtAlles", bool.FalseString, true);
-            Json.AddKeyValuePair(result, "debugKonsoleIstAktiv", bool.FalseString, true);
+            Json.AddKeyValuePair(result, "alleHabenDebugRechte", bool.FalseString.ToLower(), true);
+            Json.AddKeyValuePair(result, "adminsHabenDebugRechte", bool.FalseString.ToLower(), true);
+            Json.AddKeyValuePair(result, "debugBerechtigungErlaubtAlles", bool.FalseString.ToLower(), true);
+            Json.AddKeyValuePair(result, "debugKonsoleIstAktiv", bool.FalseString.ToLower(), true);
             return result;
         }
 
         public static Dictionary<string, string> GetDefaultPasswordRequirements()
         {
             var result = new Dictionary<string, string>();
-            Json.AddKeyValuePair(result, "erfordertZiffer", bool.TrueString, true);
-            Json.AddKeyValuePair(result, "erfordertGroßbuchstaben", bool.TrueString, true);
-            Json.AddKeyValuePair(result, "erfordertKleinbuchstaben", bool.TrueString, true);
-            Json.AddKeyValuePair(result, "erfordertSonderzeichen", bool.TrueString, true);
+            Json.AddKeyValuePair(result, "erfordertZiffer", bool.TrueString.ToLower(), true);
+            Json.AddKeyValuePair(result, "erfordertGroßbuchstaben", bool.TrueString.ToLower(), true);
+            Json.AddKeyValuePair(result, "erfordertKleinbuchstaben", bool.TrueString.ToLower(), true);
+            Json.AddKeyValuePair(result, "erfordertSonderzeichen", bool.TrueString.ToLower(), true);
             Json.AddKeyValuePair(result, "mindestlänge", "8", true);
+            return result;
+        }
+
+        public static Dictionary<string, string> GetDefaultTokenConfigurations()
+        {
+            var result = new Dictionary<string, string>();
+            Json.AddKeyValuePair(result, "tokenDauer", "0.5", true);
+            Json.AddKeyValuePair(result, "tokenSchlüssel", "YrtHYvdsZ5v74cn5", true);
             return result;
         }
 
@@ -72,7 +95,8 @@ namespace AisBuchung_Api.Models
         {
             var path = "config.json";
             CreateNewConfigFile(false);
-            var val = Json.GetValue(File.ReadAllText(path), key, false);
+            var data = File.ReadAllText(path);
+            var val = Json.GetValue(data, key, false);
             if (val == null)
             {
                 val = Json.GetValue(Json.SerializeObject(GetDefaultConfiguration()), key, false);
@@ -83,7 +107,7 @@ namespace AisBuchung_Api.Models
 
         public static double GetVerificationTimeInDays()
         {
-            return Convert.ToDouble(GetConfigValue("verifizierungsfrist"), System.Globalization.CultureInfo.InvariantCulture);
+            return Convert.ToDouble(GetConfigValue(new string[] { "emailVerifizierung", "verifizierungsfrist" }), System.Globalization.CultureInfo.InvariantCulture);
         }
 
         public static TimeSpan GetRetentionPeriodTimeSpan()
@@ -105,6 +129,16 @@ namespace AisBuchung_Api.Models
             }
 
             return result;
+        }
+
+        public static bool CheckIfVerificationIsAutomatic()
+        {
+            return Convert.ToBoolean(GetConfigValue(new string[] { "emailVerifizierung", "automatischeVerifizierung" }));
+        }
+
+        public static bool CheckIfAdminsCanVerify()
+        {
+            return Convert.ToBoolean(GetConfigValue(new string[] { "emailVerifizierung", "adminsKönnenVerifizieren" }));
         }
 
         public static bool CheckIfEverybodyHasDebugPermission()
@@ -158,6 +192,41 @@ namespace AisBuchung_Api.Models
             {
                 return Json.DeserializeObject(result);
             }
+        }
+
+        public static string GetVerificationMailAdress()
+        {
+            return GetConfigValue(new string[] { "emailVerifizierung", "emailAdresse" });
+        }
+
+        public static string GetVerificationMailPassword()
+        {
+            return GetConfigValue(new string[] { "emailVerifizierung", "emailPasswort" });
+        }
+
+        public static string GetVerificationMailHost()
+        {
+            return GetConfigValue(new string[] { "emailVerifizierung", "emailHost" });
+        }
+
+        public static string GetVerificationLink()
+        {
+            return GetConfigValue(new string[] { "emailVerifizierung", "verifizierungslink" });
+        }
+
+        public static int GetVerificationMailPort()
+        {
+            return Convert.ToInt32(GetConfigValue(new string[] { "emailVerifizierung", "emailPort" }));
+        }
+
+        public static string GetTokenKey()
+        {
+            return GetConfigValue(new string[] { "tokenKonfigurationen", "tokenSchlüssel" });
+        }
+
+        public static double GetTokenExpiry()
+        {
+            return Convert.ToDouble(GetConfigValue(new string[] { "tokenKonfigurationen", "tokenDauer" }), System.Globalization.CultureInfo.InvariantCulture);
         }
 
         public const string Path = "config.json";

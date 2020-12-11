@@ -1,8 +1,15 @@
 {
-	"verifizierungsfrist": 0.5,
 	"aufbewahrungsfrist": 14,
-	"datenbereinigungInterval": 0.001,
+	"datenbereinigungInterval": 0.25,
 	"uidLänge": 8,
+	"emailVerifizierung": {
+		"verifizierungsfrist": 0.5,
+		"verifizierungslink": "frontend.de/verifizieren/",
+		"emailAdresse": "mail@bbw.de",
+		"emailPasswort": "r23crm0evfiw1",
+		"emailHost": "smtp.mail.yahoo.com",
+		"emailPort": 587
+	},
 	"debugKonfigurationen": {
 		"alleHabenDebugRechte": "False",
 		"adminsHabenDebugRechte": "False",
@@ -15,5 +22,9 @@
 		"erfordertKleinbuchstaben": "True",
 		"erfordertSonderzeichen": "True",
 		"mindestlänge": 8
+	},
+	"tokenKonfigurationen": {
+		"tokenDauer": 0.5,
+		"tokenSchlüssel": "YrtHYvdsZ5v74cn5"
 	}
 }

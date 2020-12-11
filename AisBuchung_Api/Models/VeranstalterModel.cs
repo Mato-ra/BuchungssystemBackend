@@ -36,6 +36,27 @@ namespace AisBuchung_Api.Models
             return databaseManager.ReadFirstAsJsonObject(GetOrganizerKeyTableDictionary(), r, null);
         }
 
+        public long GetOrganizerId(string email)
+        {
+            if (email == null)
+            {
+                return -1;
+            }
+
+            var result = databaseManager.GetId($"SELECT * FROM Veranstalter INNER JOIN Nutzerdaten ON Veranstalter.Id=Nutzerdaten.Id " +
+                $"WHERE Email=@email AND Verifiziert=1 AND Autorisiert=1", new DatabaseManager.Parameter[] {
+                    new DatabaseManager.Parameter("@email", Microsoft.Data.Sqlite.SqliteType.Text, email) });
+
+            if (result != null)
+            {
+                return Convert.ToInt64(result);
+            }
+            else
+            {
+                return -1;
+            }
+        }
+
         public string GetOrganizerCalendars(long organizerId)
         {
             var reader = databaseManager.ExecuteReader($"SELECT * FROM Kalenderberechtigte WHERE Veranstalter={organizerId}");
@@ -69,12 +90,38 @@ namespace AisBuchung_Api.Models
             var d = organizerPost.ToDictionary();
             d.Add("Autorisiert", "0");
             d.Add("id", id.ToString());
-            
             var result = databaseManager.ExecutePost("Veranstalter", d);
-
-            
-
             return result;
+        }
+
+        public long PostAuthorizedOrganizer(OrganizerPost organizerPost, out string errorMessage)
+        {
+            errorMessage = String.Empty;
+
+            if (GetOrganizer(organizerPost.email) != null)
+            {
+                errorMessage = "Mit dieser e-Mail-Adresse wurde bereits ein Nutzer registriert.";
+                return -1;
+            }
+
+            var userPost = organizerPost.ToUserPost();
+
+            var id = new NutzerModel().PostVerifiedUser(userPost);
+            if (id == -1)
+            {
+                return -1;
+            }
+
+            var d = organizerPost.ToDictionary();
+            d.Add("Autorisiert", "0");
+            d.Add("id", id.ToString());
+            var result = databaseManager.ExecutePost("Veranstalter", d);
+            if (ForceAuthorizeOrganizer(result))
+            {
+                return result;
+            }
+
+            return -1;
         }
 
         public bool PutOrganizer(long id, OrganizerPost organizerPost)
@@ -114,7 +161,35 @@ namespace AisBuchung_Api.Models
                 var ids = databaseManager.ExecuteReader("SELECT a.Id FROM Veranstalter a INNER JOIN Nutzerdaten b ON (a.Id = b.Id) WHERE Email = @email AND Autorisiert = 0", new DatabaseManager.Parameter("@email", Microsoft.Data.Sqlite.SqliteType.Text, email));
                 var re = databaseManager.ReadAsJsonArray(new Dictionary<string, string> { { "id", "Id" } }, ids);
                 databaseManager.ExecuteNonQuery($"DELETE FROM Veranstalter WHERE Id IN (SELECT a.Id FROM Veranstalter a INNER JOIN Nutzerdaten b ON (a.Id=b.Id) WHERE Email=@email AND Autorisiert=0)", new DatabaseManager.Parameter("@email", Microsoft.Data.Sqlite.SqliteType.Text, email));
-                //TODO Nichtautorisierte Veranstalter löschen
+                //TODO: Nichtautorisierte Veranstalter löschen
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+
+        public bool ForceAuthorizeOrganizer(long id)
+        {
+            var organizer = GetOrganizer(id);
+            if (organizer == null)
+            {
+                return false;
+            }
+
+            new NutzerModel().VerifyUser(id);
+
+            var user = new NutzerModel().GetUser(id);
+
+            var email = Json.DeserializeString(Json.GetValue(user, "email", false));
+
+            if (databaseManager.ExecutePut("Veranstalter", id, new Dictionary<string, string> { { "autorisiert", "1" } }))
+            {
+                var ids = databaseManager.ExecuteReader("SELECT a.Id FROM Veranstalter a INNER JOIN Nutzerdaten b ON (a.Id = b.Id) WHERE Email = @email AND Autorisiert = 0", new DatabaseManager.Parameter("@email", Microsoft.Data.Sqlite.SqliteType.Text, email));
+                var re = databaseManager.ReadAsJsonArray(new Dictionary<string, string> { { "id", "Id" } }, ids);
+                databaseManager.ExecuteNonQuery($"DELETE FROM Veranstalter WHERE Id IN (SELECT a.Id FROM Veranstalter a INNER JOIN Nutzerdaten b ON (a.Id=b.Id) WHERE Email=@email AND Autorisiert=0)", new DatabaseManager.Parameter("@email", Microsoft.Data.Sqlite.SqliteType.Text, email));
+                //TODO: Nichtautorisierte Veranstalter löschen
                 return true;
             }
             else
@@ -154,6 +229,29 @@ namespace AisBuchung_Api.Models
             }
 
             return databaseManager.ExecutePut("Veranstalter", id, post.ToDictionary());
+        }
+
+        public bool ChangeEmail(long id, EmailPost post)
+        {
+            var veri = new EmailverifizierungenModel();
+            var code = veri.AddNewCode(id, ConfigManager.GetVerificationTimeInDays());
+            var verId = veri.GetVerificationCodeId(code);
+            if (verId < 0)
+            {
+                return false;
+            }
+            else
+            {
+                if (databaseManager.ExecutePost("Emailänderungen", new Dictionary<string, string> { { "Emailverifizierung", verId.ToString() }, { "NeueEmail", post.neueEmail } }) > 0)
+                {
+                    veri.SendVerificationMail(code, post.neueEmail);
+                    return true;
+                }
+                else
+                {
+                    return false;
+                }
+            }
         }
 
 
@@ -213,6 +311,28 @@ namespace AisBuchung_Api.Models
             return
                 validation.CheckIfTextIsValid(altesPasswort) &&
                 validation.CheckIfTextIsValid(neuesPasswort);
+        }
+    }
+
+    public class EmailPost : LoginData
+    {
+        public string neueEmail { get; set; }
+
+        public Dictionary<string, string> ToDictionary()
+        {
+            var result = new Dictionary<string, string>
+            {
+                {"neueEmail", Json.SerializeString(neueEmail) }
+            };
+
+            return result;
+        }
+
+        public override bool CheckIfPostDataIsValid()
+        {
+            var validation = new DataValidation();
+            return
+                validation.CheckIfEmailAdressIsValid(neueEmail);
         }
     }
 }
