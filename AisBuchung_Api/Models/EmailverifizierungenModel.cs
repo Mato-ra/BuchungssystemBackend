@@ -87,11 +87,11 @@ namespace AisBuchung_Api.Models
             var dateTime = CalendarManager.GetDateTime(DateTime.Now);
             var reader = databaseManager.ExecuteReader($"SELECT * FROM Emailverifizierungen WHERE Code=@code AND Zeitfrist>={dateTime}", new DatabaseManager.Parameter("@code", Microsoft.Data.Sqlite.SqliteType.Text, code));
             var r = databaseManager.ReadFirstAsJsonObject(new Dictionary<string, string> { { "id", "Id"}, { "nutzer", "Nutzer" } }, reader, null);
-            var id = Convert.ToInt64(Json.GetKvpValue(r, "nutzer", false));
-            var cid = Convert.ToInt64(Json.GetKvpValue(r, "id", false));
-            if (new NutzerModel().VerifyUser(id) > 0)
+            var nid = Convert.ToInt64(Json.GetKvpValue(r, "nutzer", false));
+            var id = Convert.ToInt64(Json.GetKvpValue(r, "id", false));
+            if (new NutzerModel().VerifyUser(nid) > 0)
             {
-                //TODO: Emailänderung
+                ProcessEmailChange(id);
 
                 DeleteVerificationCode(GetVerificationCodeId(code));
                 return true;
@@ -100,6 +100,13 @@ namespace AisBuchung_Api.Models
             {
                 return false;
             }
+        }
+
+        public bool ProcessEmailChange(long verificationId)
+        {
+            //TODO: CONTINUE
+            var newEmail = "";
+            return true;
         }
 
         public long GetVerificationCodeId(string code)
@@ -126,7 +133,7 @@ namespace AisBuchung_Api.Models
 
             var content = $"Bitte verifizieren Sie Ihre e-Mail über diesen Link: {link}";
 
-            //SendEmail("Emailverifizierung", content, emailAdress);
+            SendEmail("Emailverifizierung", content, emailAdress);
         }
 
         public void SendEmail(string subject, string content, string emailAddress)
