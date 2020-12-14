@@ -1,25 +1,21 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\rasilama\\Desktop\\AisBuchung_Api\\AisBuchung_Api.csproj": {}
+    "C:\\Users\\AlvaLynsis\\Desktop\\AisBuchung_Api\\AisBuchung_Api.csproj": {}
   },
   "projects": {
-    "C:\\Users\\rasilama\\Desktop\\AisBuchung_Api\\AisBuchung_Api.csproj": {
+    "C:\\Users\\AlvaLynsis\\Desktop\\AisBuchung_Api\\AisBuchung_Api.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\rasilama\\Desktop\\AisBuchung_Api\\AisBuchung_Api.csproj",
+        "projectUniqueName": "C:\\Users\\AlvaLynsis\\Desktop\\AisBuchung_Api\\AisBuchung_Api.csproj",
         "projectName": "AisBuchung_Api",
-        "projectPath": "C:\\Users\\rasilama\\Desktop\\AisBuchung_Api\\AisBuchung_Api.csproj",
-        "packagesPath": "C:\\Users\\rasilama\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\rasilama\\Desktop\\AisBuchung_Api\\obj\\",
+        "projectPath": "C:\\Users\\AlvaLynsis\\Desktop\\AisBuchung_Api\\AisBuchung_Api.csproj",
+        "packagesPath": "C:\\Users\\AlvaLynsis\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\AlvaLynsis\\Desktop\\AisBuchung_Api\\obj\\",
         "projectStyle": "PackageReference",
-        "fallbackFolders": [
-          "C:\\Microsoft\\Xamarin\\NuGet\\"
-        ],
         "configFilePaths": [
-          "C:\\Users\\rasilama\\AppData\\Roaming\\NuGet\\NuGet.Config",
-          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config",
-          "C:\\Program Files (x86)\\NuGet\\Config\\Xamarin.Offline.config"
+          "C:\\Users\\AlvaLynsis\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
         "originalTargetFrameworks": [
           "netcoreapp3.1"
@@ -90,7 +86,7 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\3.1.402\\RuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\3.1.101\\RuntimeIdentifierGraph.json"
         }
       }
     }

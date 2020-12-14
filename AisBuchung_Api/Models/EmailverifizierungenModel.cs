@@ -129,8 +129,13 @@ namespace AisBuchung_Api.Models
             //SendEmail("Emailverifizierung", content, emailAdress);
         }
 
-        public void SendEmail(string subject, string content, string emailAdress)
+        public void SendEmail(string subject, string content, string emailAddress)
         {
+            if (!ConfigManager.CheckIfVerificationMailIsActive())
+            {
+                return;
+            }
+
             var message = new MailMessage();
             var smtp = new SmtpClient();
 
@@ -138,7 +143,7 @@ namespace AisBuchung_Api.Models
             var pw = ConfigManager.GetVerificationMailPassword();
 
             message.From = new MailAddress(ml);
-            message.To.Add(new MailAddress(emailAdress));
+            message.To.Add(new MailAddress(emailAddress));
             message.Subject = subject;
             message.IsBodyHtml = true;
             message.Body = content;
