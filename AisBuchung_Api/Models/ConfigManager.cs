@@ -38,13 +38,14 @@ namespace AisBuchung_Api.Models
         public static Dictionary<string, string> GetVerificationEmailConfigurations()
         {
             var result = new Dictionary<string, string>();
-            Json.AddKeyValuePair(result, "verifizierungIstAktiv", bool.TrueString.ToLower(), true);
+            Json.AddKeyValuePair(result, "emailWirdGesendet", bool.FalseString.ToLower(), true);
             Json.AddKeyValuePair(result, "verifizierungsfrist", "0.5", true);
             Json.AddKeyValuePair(result, "verifizierungslink", "frontend.de/verifizieren/", true);
             Json.AddKeyValuePair(result, "emailAdresse", "mail@bbw.de", true);
             Json.AddKeyValuePair(result, "emailPasswort", "r23crm0evfiw1", true);
             Json.AddKeyValuePair(result, "emailHost", "smtp.mail.yahoo.com", true);
             Json.AddKeyValuePair(result, "emailPort", "587", true);
+            Json.AddKeyValuePair(result, "codeLänge", "8", true);
             Json.AddKeyValuePair(result, "automatischeVerifizierung", bool.FalseString.ToLower(), true);
             Json.AddKeyValuePair(result, "adminsKönnenVerifizieren", bool.FalseString.ToLower(), true);
             return result;
@@ -132,9 +133,23 @@ namespace AisBuchung_Api.Models
             return result;
         }
 
+        public static int GetVerificationCodeLength()
+        {
+            var result = Convert.ToInt32(GetConfigValue(new string[] { "emailVerifizierung", "codeLänge" }));
+            if (result < 4)
+            {
+                result = 4;
+            }
+            if (result > 36)
+            {
+                result = 36;
+            }
+            return result;
+        }
+
         public static bool CheckIfVerificationMailIsActive()
         {
-            return Convert.ToBoolean(GetConfigValue(new string[] { "emailVerifizierung", "verifizierungIstAktiv" }));
+            return Convert.ToBoolean(GetConfigValue(new string[] { "emailVerifizierung", "emailWirdGesendet" }));
         }
 
         public static bool CheckIfVerificationIsAutomatic()

@@ -231,7 +231,7 @@ namespace AisBuchung_Api.Models
             return databaseManager.ExecutePut("Veranstalter", id, post.ToDictionary());
         }
 
-        public bool ChangeEmail(long id, EmailPost post)
+        public bool PostEmail(long id, EmailPost post)
         {
             var veri = new EmailverifizierungenModel();
             var code = veri.AddNewCode(id, ConfigManager.GetVerificationTimeInDays());
@@ -252,6 +252,11 @@ namespace AisBuchung_Api.Models
                     return false;
                 }
             }
+        }
+
+        public bool ChangeEmail(long id, string newEmail)
+        {
+            return databaseManager.ExecutePut("Nutzerdaten", id, new Dictionary<string, string> { { "Email", newEmail } });
         }
 
 

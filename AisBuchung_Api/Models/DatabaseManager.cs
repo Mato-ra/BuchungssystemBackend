@@ -368,7 +368,7 @@ namespace AisBuchung_Api.Models
                         case Json.ValueType.Invalid: p.SqliteType = SqliteType.Text; break;
                     }
 
-                    if (p.Value.ToString() == "null")
+                    if (Json.DeserializeString(Json.DeserializeString(p.Value.ToString().ToLower())) == null)
                     {
                         return -1;
                     }

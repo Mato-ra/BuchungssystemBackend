@@ -73,7 +73,7 @@ namespace AisBuchung_Api.Controllers
         }
 
         [HttpDelete("{code}")]
-        public ActionResult<IEnumerable<string>> SubmitCode(LoginPost loginPost, string code)
+        public ActionResult<IEnumerable<string>> DeleteCode(LoginPost loginPost, string code)
         {
             if (!auth.CheckIfDebugPermissions(loginPost))
             {

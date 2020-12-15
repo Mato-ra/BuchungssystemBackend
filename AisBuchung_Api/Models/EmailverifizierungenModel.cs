@@ -67,12 +67,15 @@ namespace AisBuchung_Api.Models
         public void WipeUnnecessaryData()
         {
             var dateTime = CalendarManager.GetDateTime(DateTime.Now);
+            databaseManager.ExecuteNonQuery($"DELETE c FROM Emailänderungen c INNER JOIN Emailverifizierungen v ON c.Emailverifizierung=v.Id WHERE Zeitfrist<={dateTime}");
             databaseManager.ExecuteNonQuery($"DELETE FROM Emailverifizierungen WHERE Zeitfrist<={dateTime}");
+
+            //TODO Wipe EmailChanges
         }
 
         public string GenerateUniqueCode()
         {
-            string result = null;
+            string result;
             do
             {
                 result = Guid.NewGuid().ToString();
@@ -91,7 +94,7 @@ namespace AisBuchung_Api.Models
             var id = Convert.ToInt64(Json.GetKvpValue(r, "id", false));
             if (new NutzerModel().VerifyUser(nid) > 0)
             {
-                ProcessEmailChange(id);
+                ProcessEmailChange(id, nid);
 
                 DeleteVerificationCode(GetVerificationCodeId(code));
                 return true;
@@ -102,10 +105,16 @@ namespace AisBuchung_Api.Models
             }
         }
 
-        public bool ProcessEmailChange(long verificationId)
+        public bool ProcessEmailChange(long verificationId, long userId)
         {
-            //TODO: CONTINUE
-            var newEmail = "";
+            var reader = databaseManager.ExecuteReader($"SELECT * FROM Emailänderungen WHERE Emailverifizierung={verificationId}");
+            var r = databaseManager.ReadFirstAsJsonObject(new Dictionary<string, string> { { "neueEmail", "NeueEmail" } }, reader, null);
+            if (r == null)
+            {
+                return false;
+            }
+            var newEmail = Json.GetKvpValue(r, "neueEmail", false);
+            new VeranstalterModel().ChangeEmail(userId, newEmail);
             return true;
         }
 
@@ -124,6 +133,7 @@ namespace AisBuchung_Api.Models
 
         public bool DeleteVerificationCode(long id)
         {
+            databaseManager.ExecuteDelete("Emailänderungen", id);
             return databaseManager.ExecuteDelete("Emailverifizierungen", id);
         }
 
@@ -173,6 +183,16 @@ namespace AisBuchung_Api.Models
                 {"code", "Code" },
                 {"nutzer", "Nutzer" },
                 {"zeitfrist", "Zeitfrist" },
+            };
+        }
+
+        public Dictionary<string, string> GetChangeKeyTableDictionary()
+        {
+            return new Dictionary<string, string>
+            {
+                {"id", "Id" },
+                {"emailverifizierung", "Emailverifizierung" },
+                {"neueEmail", "NeueEmail" },
             };
         }
     }

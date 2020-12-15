@@ -156,12 +156,24 @@ namespace AisBuchung_Api.Controllers
         [HttpPost("{id}/email")]
         public ActionResult<IEnumerable<string>> ChangeEmail(EmailPost emailPost, long id)
         {
+            if (auth.CheckIfAdminPermissions(emailPost))
+            {
+                if (model.ChangeEmail(id, emailPost.neueEmail))
+                {
+                    return NoContent();
+                }
+                else
+                {
+                    return BadRequest();
+                }
+            }
+
             if (!auth.CheckIfOrganizerPermissions(emailPost, id))
             {
                 return Unauthorized();
             }
 
-            if (model.ChangeEmail(id, emailPost))
+            if (model.PostEmail(id, emailPost))
             {
                 return NoContent();
             }
