@@ -3,24 +3,28 @@
 	"datenbereinigungInterval": 0.25,
 	"uidLänge": 8,
 	"emailVerifizierung": {
+		"emailWirdGesendet": false,
 		"verifizierungsfrist": 0.5,
 		"verifizierungslink": "frontend.de/verifizieren/",
 		"emailAdresse": "mail@bbw.de",
 		"emailPasswort": "r23crm0evfiw1",
 		"emailHost": "smtp.mail.yahoo.com",
-		"emailPort": 587
+		"emailPort": 587,
+		"codeLänge": 8,
+		"automatischeVerifizierung": false,
+		"adminsKönnenVerifizieren": false
 	},
 	"debugKonfigurationen": {
-		"alleHabenDebugRechte": "False",
-		"adminsHabenDebugRechte": "False",
-		"debugBerechtigungErlaubtAlles": "False",
-		"debugKonsoleIstAktiv": "False"
+		"alleHabenDebugRechte": false,
+		"adminsHabenDebugRechte": false,
+		"debugBerechtigungErlaubtAlles": false,
+		"debugKonsoleIstAktiv": false
 	},
 	"passwortRichtlinien": {
-		"erfordertZiffer": "True",
-		"erfordertGroßbuchstaben": "True",
-		"erfordertKleinbuchstaben": "True",
-		"erfordertSonderzeichen": "True",
+		"erfordertZiffer": true,
+		"erfordertGroßbuchstaben": true,
+		"erfordertKleinbuchstaben": true,
+		"erfordertSonderzeichen": true,
 		"mindestlänge": 8
 	},
 	"tokenKonfigurationen": {

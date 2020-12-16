@@ -87,7 +87,7 @@ namespace AisBuchung_Api.Models
             d["Uid"] = uid;
             d["Teilnehmerzahl"] = "0";
             var result = databaseManager.ExecutePost("Veranstaltungen", d);
-            if (result > 0)
+            if (result > -1)
             {
                 return uid;
             }

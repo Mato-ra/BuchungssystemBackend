@@ -356,6 +356,8 @@ namespace AisBuchung_Api.Models
             {
                 if (kvp.Value == null)
                 {
+                    CloseConnection();
+                    return -1;
                     c.Parameters.Add(new SqliteParameter($"@{kvp.Key}", DBNull.Value));
                 }
                 else
@@ -426,6 +428,10 @@ namespace AisBuchung_Api.Models
                     }
 
                     parameters.Add(new Parameter(parameterName, type, value));
+                }
+                else
+                {
+
                 }
             }
 

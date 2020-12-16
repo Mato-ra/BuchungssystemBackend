@@ -84,6 +84,32 @@ namespace AisBuchung_Api.Controllers
             }
         }
 
+        [HttpPost("{calendarId}/veranstaltungen")]
+        public ActionResult<IEnumerable<string>> PostCalendarOrganizer(long calendarId, EventPost eventPost)
+        {
+            if (model.GetCalendar(calendarId) == null)
+            {
+                return NotFound();
+            }
+
+            if (!auth.CheckIfCalendarPermissions(eventPost, calendarId))
+            {
+                return Unauthorized();
+            }
+
+            var result = new VeranstaltungenModel().PostEvent(calendarId, eventPost);
+
+            if (result != null)
+            {
+                result = Json.AddKeyValuePair(Json.CreateNewObject(), "uid", result, true);
+                return Content(result, "application/json");
+            }
+            else
+            {
+                return BadRequest();
+            }
+        }
+
         [HttpDelete("{calendarId}/veranstalter/{organizerId}")]
         public ActionResult<IEnumerable<string>> DeleteCalendarOrganizer(LoginPost loginPost, long calendarId, long organizerId)
         {

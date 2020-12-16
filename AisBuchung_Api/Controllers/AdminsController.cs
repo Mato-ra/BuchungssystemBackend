@@ -65,8 +65,7 @@ namespace AisBuchung_Api.Controllers
             var result = model.PostAdmin(id);
             if (result)
             {
-                var path = $"{HttpContext.Request.Scheme}://{HttpContext.Request.Host.Value}/admins/{id}";
-                return Created(path, null);
+                return NoContent();
             }
             else
             {

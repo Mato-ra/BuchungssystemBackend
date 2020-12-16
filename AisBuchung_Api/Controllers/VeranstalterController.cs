@@ -158,6 +158,11 @@ namespace AisBuchung_Api.Controllers
         {
             if (auth.CheckIfAdminPermissions(emailPost))
             {
+                if (model.GetOrganizer(emailPost.neueEmail) != null)
+                {
+                    return BadRequest();
+                }
+
                 if (model.ChangeEmail(id, emailPost.neueEmail))
                 {
                     return NoContent();
@@ -173,6 +178,10 @@ namespace AisBuchung_Api.Controllers
                 return Unauthorized();
             }
 
+            if (model.GetOrganizer(emailPost.neueEmail) != null)
+            {
+                return BadRequest();
+            }
             if (model.PostEmail(id, emailPost))
             {
                 return NoContent();
@@ -195,7 +204,6 @@ namespace AisBuchung_Api.Controllers
             var result = model.PutOrganizer(id, organizerPost);
             if (result)
             {
-                //var path = $"{HttpContext.Request.Scheme}://{HttpContext.Request.Host.Value}/veranstalter/{result}";
                 return NoContent();
             }
             else

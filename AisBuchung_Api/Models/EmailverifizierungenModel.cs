@@ -69,8 +69,6 @@ namespace AisBuchung_Api.Models
             var dateTime = CalendarManager.GetDateTime(DateTime.Now);
             databaseManager.ExecuteNonQuery($"DELETE c FROM Emailänderungen c INNER JOIN Emailverifizierungen v ON c.Emailverifizierung=v.Id WHERE Zeitfrist<={dateTime}");
             databaseManager.ExecuteNonQuery($"DELETE FROM Emailverifizierungen WHERE Zeitfrist<={dateTime}");
-
-            //TODO Wipe EmailChanges
         }
 
         public string GenerateUniqueCode()
@@ -78,7 +76,7 @@ namespace AisBuchung_Api.Models
             string result;
             do
             {
-                result = Guid.NewGuid().ToString();
+                result = Guid.NewGuid().ToString().Substring(0, ConfigManager.GetVerificationCodeLength());
             }
             while (databaseManager.CountResults($"SELECT * FROM Emailverifizierungen WHERE Code=\"{result}\"") > 0);
 

@@ -25,37 +25,34 @@ namespace AisBuchung_Api.Controllers
         }
 
         [HttpGet]
-        public ActionResult<IEnumerable<string>> GetAllEvents()
+        public ActionResult<IEnumerable<string>> GetAllEvents(LoginPost loginPost)
         {
+            if (!auth.CheckIfOrganizerPermissions(loginPost))
+            {
+                return Unauthorized();
+            }
+
             var query = Request.QueryString.ToUriComponent();
             query = System.Web.HttpUtility.UrlDecode(query);
             var result = model.GetEvents(query);
             return Content(result, "application/json");
         }
 
-        [HttpGet("{calendarId}")]
-        public ActionResult<IEnumerable<string>> GetCalendarEvents(long calendarId)
+        [HttpGet("{uid}")]
+        public ActionResult<IEnumerable<string>> GetEvent(string uid)
         {
-            if (calendarId == -1)
+            if (model.GetEvent(uid) == null)
             {
                 return NotFound();
             }
 
-            var query = Request.QueryString.ToUriComponent();
-            query = System.Web.HttpUtility.UrlDecode(query);
-            var result = model.GetEvents(calendarId, query);
-            return Content(result, "application/json");
-        }
+            var calendarId = Convert.ToInt32(CalendarManager.GetOrganizerCommonName(uid));
 
-        [HttpGet("{calendarId}/{uid}")]
-        public ActionResult<IEnumerable<string>> GetEvent(long calendarId, string uid)
-        {
-            if (calendarId == -1)
+            if (new KalenderModel().GetCalendar(calendarId) == null)
             {
                 return NotFound();
             }
 
-            //TODO Fix
 
             var query = Request.QueryString.ToUriComponent();
             query = System.Web.HttpUtility.UrlDecode(query);
@@ -63,10 +60,17 @@ namespace AisBuchung_Api.Controllers
             return Content(result, "application/json");
         }
 
-        [HttpDelete("{calendarId}/{uid}")]
-        public ActionResult<IEnumerable<string>> DeleteEvent(LoginPost loginPost, long calendarId, string uid)
+        [HttpDelete("{uid}")]
+        public ActionResult<IEnumerable<string>> DeleteEvent(LoginPost loginPost, string uid)
         {
-            if (calendarId == -1)
+            if (model.GetEvent(uid) == null)
+            {
+                return NotFound();
+            }
+
+            var calendarId = Convert.ToInt32(CalendarManager.GetOrganizerCommonName(uid));
+
+            if (new KalenderModel().GetCalendar(calendarId) == null)
             {
                 return NotFound();
             }
@@ -85,35 +89,17 @@ namespace AisBuchung_Api.Controllers
             }
         }
 
-        [HttpPost("{calendarId}")]
-        public ActionResult<IEnumerable<string>> PostEvent(EventPost eventPost, long calendarId)
+        [HttpPut("{uid}")]
+        public ActionResult<IEnumerable<string>> PutEvent(EventPost eventPost, string uid)
         {
-            if (calendarId == -1)
+            if (model.GetEvent(uid) == null)
             {
                 return NotFound();
             }
 
-            if (!auth.CheckIfCalendarPermissions(eventPost, calendarId)){
-                return Unauthorized();
-            }
+            var calendarId = Convert.ToInt32(CalendarManager.GetOrganizerCommonName(uid));
 
-            var result = model.PostEvent(calendarId, eventPost);
-            
-            if (result != null)
-            {
-                result = Json.AddKeyValuePair(Json.CreateNewObject(), "uid", result, true);
-                return Content(result, "application/json");
-            }
-            else
-            {
-                return BadRequest();
-            }
-        }
-
-        [HttpPut("{calendarId}/{uid}")]
-        public ActionResult<IEnumerable<string>> PutEvent(EventPost eventPost, long calendarId, string uid)
-        {
-            if (calendarId == -1)
+            if (new KalenderModel().GetCalendar(calendarId) == null)
             {
                 return NotFound();
             }
