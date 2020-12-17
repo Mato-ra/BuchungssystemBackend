@@ -93,7 +93,7 @@ namespace AisBuchung_Api.Models
             if (new NutzerModel().VerifyUser(nid) > 0)
             {
                 ProcessEmailChange(id, nid);
-
+                ProcessBooking(nid);
                 DeleteVerificationCode(GetVerificationCodeId(code));
                 return true;
             }
@@ -114,6 +114,17 @@ namespace AisBuchung_Api.Models
             var newEmail = Json.GetKvpValue(r, "neueEmail", false);
             new VeranstalterModel().ChangeEmail(userId, newEmail);
             return true;
+        }
+
+        public bool ProcessBooking(long userId)
+        {
+            var bookingId = databaseManager.GetId($"SELECT Buchungen.Id FROM Nutzerdaten INNER JOIN Buchungen ON Buchungen.Nutzer=Nutzerdaten.Id WHERE Nutzer.Id={userId}");
+            if (bookingId == null)
+            {
+                return false;
+            }
+
+            return new BuchungenModel().ProcessBooking(Convert.ToInt64(bookingId));
         }
 
         public long GetVerificationCodeId(string code)

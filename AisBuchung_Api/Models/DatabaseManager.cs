@@ -358,7 +358,7 @@ namespace AisBuchung_Api.Models
                 {
                     CloseConnection();
                     return -1;
-                    c.Parameters.Add(new SqliteParameter($"@{kvp.Key}", DBNull.Value));
+                    //c.Parameters.Add(new SqliteParameter($"@{kvp.Key}", DBNull.Value));
                 }
                 else
                 {
