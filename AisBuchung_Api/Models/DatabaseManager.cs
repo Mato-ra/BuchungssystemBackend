@@ -5,8 +5,6 @@ using System.Threading.Tasks;
 using System.IO;
 using Microsoft.Data.Sqlite;
 using JsonSerializer;
-using System.Reflection.Metadata.Ecma335;
-using System.ComponentModel.DataAnnotations;
 
 namespace AisBuchung_Api.Models
 {

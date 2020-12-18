@@ -118,7 +118,7 @@ namespace AisBuchung_Api.Models
 
         public bool ProcessBooking(long userId)
         {
-            var bookingId = databaseManager.GetId($"SELECT Buchungen.Id FROM Nutzerdaten INNER JOIN Buchungen ON Buchungen.Nutzer=Nutzerdaten.Id WHERE Nutzer.Id={userId}");
+            var bookingId = databaseManager.GetId($"SELECT Buchungen.Id FROM Nutzerdaten INNER JOIN Buchungen ON Buchungen.Nutzer=Nutzerdaten.Id WHERE Nutzerdaten.Id={userId}");
             if (bookingId == null)
             {
                 return false;

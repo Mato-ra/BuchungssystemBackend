@@ -95,7 +95,7 @@ namespace AisBuchung_Api.Models
         public bool PutUser(long id, UserPost userPost)
         {
             var dict = userPost.ToDictionary();
-            dict.Remove("email");
+            dict.Remove("Email");
             return databaseManager.ExecutePut("Nutzerdaten", id, dict);
         }
 
