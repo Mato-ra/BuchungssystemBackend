@@ -107,7 +107,7 @@ namespace AisBuchung_Api.Controllers
                 return auth.CreateErrorMessageResponse(errorMessage);
             };
 
-            var result = model.PostOrganizer(organizerPost, out errorMessage);
+            var result = model.PostAuthorizedOrganizer(organizerPost, out errorMessage);
             if (result > 0)
             {
                 return Ok();
@@ -129,6 +129,18 @@ namespace AisBuchung_Api.Controllers
             }
 
             var email = model.GetOrganizerEmail(id);
+            if (auth.CheckIfAdminPermissions(passwordPost))
+            {
+                if (!model.PostPassword(id, passwordPost, out errorMessage))
+                {
+                    return auth.CreateErrorMessageResponse(errorMessage);
+                }
+                else
+                {
+                    return NoContent();
+                }
+            }
+
             if (auth.CheckIfOrganizerPermissions(passwordPost, id))
             {
                 if (auth.GetLoggedInOrganizer(Json.DeserializeString(email), passwordPost.HashPassword(passwordPost.altesPasswort)) != id)
@@ -139,10 +151,7 @@ namespace AisBuchung_Api.Controllers
             }
             else
             {
-                if (!auth.CheckIfAdminPermissions(passwordPost))
-                {
-                    return Unauthorized();
-                }
+                return Unauthorized();
             }
             
             if (!model.PostPassword(id, passwordPost, out errorMessage))
@@ -150,7 +159,7 @@ namespace AisBuchung_Api.Controllers
                 return auth.CreateErrorMessageResponse(errorMessage);
             }
 
-            return Ok();
+            return NoContent();
         }
 
         [HttpPost("{id}/email")]

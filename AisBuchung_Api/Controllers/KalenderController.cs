@@ -54,6 +54,11 @@ namespace AisBuchung_Api.Controllers
                 return Unauthorized();
             }
 
+            if (model.GetCalendar(calendarId) == null)
+            {
+                return NotFound();
+            }
+
             var result = model.GetCalendarOrganizers(calendarId);
             if (result != null)
             {
@@ -68,6 +73,11 @@ namespace AisBuchung_Api.Controllers
         [HttpGet("{calendarId}/veranstaltungen")]
         public ActionResult<IEnumerable<string>> GetEvents(long calendarId, LoginPost loginPost)
         {
+            if (model.GetCalendar(calendarId) == null)
+            {
+                return NotFound();
+            }
+
             if (!auth.CheckIfOrganizerPermissions(loginPost))
             {
                 return Unauthorized();
@@ -118,6 +128,11 @@ namespace AisBuchung_Api.Controllers
                 return Unauthorized();
             }
 
+            if (model.GetCalendar(calendarId) == null)
+            {
+                return NotFound();
+            }
+
             var result = model.GetCalendarOrganizers(calendarId);
             if (result != null)
             {
@@ -162,8 +177,13 @@ namespace AisBuchung_Api.Controllers
         }
 
         [HttpGet]
-        public ActionResult<IEnumerable<string>> GetAllCalendars()
+        public ActionResult<IEnumerable<string>> GetAllCalendars(LoginPost loginPost)
         {
+            if (!auth.CheckIfOrganizerPermissions(loginPost))
+            {
+                return Unauthorized();
+            }
+
             var result = model.GetCalendars();
             if (result != null)
             {
