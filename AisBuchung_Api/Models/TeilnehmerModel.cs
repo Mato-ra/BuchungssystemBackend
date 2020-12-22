@@ -24,8 +24,11 @@ namespace AisBuchung_Api.Models
 
         public string GetParticipants()
         {
-            var r = databaseManager.ExecuteReader($"SELECT * FROM Teilnehmer INNER JOIN Nutzerdaten ON Teilnehmer.Nutzer=Nutzerdaten.Id");
-            return databaseManager.ReadAsJsonArray(GetKeyTableDictionary(), r, "teilnehmer");
+
+            var d = GetKeyTableDictionary();
+            d.Add("veranstaltung", "Uid");
+            var r = databaseManager.ExecuteReader($"SELECT * FROM Teilnehmer INNER JOIN Nutzerdaten ON Teilnehmer.Nutzer=Nutzerdaten.Id INNER JOIN Veranstaltungen ON Teilnehmer.Veranstaltung=Veranstaltungen.Id");
+            return databaseManager.ReadAsJsonArray(d, r, "teilnehmer");
         }
 
         public string GetParticipantsAsArray()
@@ -107,7 +110,6 @@ namespace AisBuchung_Api.Models
             return new Dictionary<string, string>
             {
                 {"id", "Id" },
-                {"veranstaltung", "Veranstaltung" },
                 {"vorname", "Vorname" },
                 {"nachname", "Nachname" },
                 {"email", "Email" },

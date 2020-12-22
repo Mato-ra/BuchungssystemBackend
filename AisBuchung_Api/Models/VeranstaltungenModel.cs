@@ -126,7 +126,7 @@ namespace AisBuchung_Api.Models
         {
             return new Dictionary<string, string>
             {
-                {"id", "Id" },
+                //{"id", "Id" },
                 {"uid", "Uid" },
                 {"teilnehmerzahl", "Teilnehmerzahl" },
                 {"teilnehmerlimit", "Teilnehmerlimit" },

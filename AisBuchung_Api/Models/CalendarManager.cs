@@ -207,6 +207,11 @@ namespace AisBuchung_Api.Models
 
         public static string ReadEventAsJsonObject(CalendarEvent calendarEvent)
         {
+            if (calendarEvent == null)
+            {
+                return null;
+            }
+
             var e = calendarEvent;
             var o = new Dictionary<string, string>();
             Json.AddKeyValuePair(o, "uid", e.Uid, true);

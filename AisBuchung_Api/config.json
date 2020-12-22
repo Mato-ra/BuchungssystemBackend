@@ -11,7 +11,7 @@
 		"emailHost": "smtp.mail.yahoo.com",
 		"emailPort": 587,
 		"codeLänge": 8,
-		"automatischeVerifizierung": false,
+		"automatischeVerifizierung": true,
 		"adminsKönnenVerifizieren": false
 	},
 	"debugKonfigurationen": {
