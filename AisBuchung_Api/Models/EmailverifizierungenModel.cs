@@ -92,9 +92,29 @@ namespace AisBuchung_Api.Models
             var id = Convert.ToInt64(Json.GetKvpValue(r, "id", false));
             if (new NutzerModel().VerifyUser(nid) > 0)
             {
-                ProcessEmailChange(id, nid);
-                ProcessBooking(nid);
+                ProcessVerification(id, nid);
                 DeleteVerificationCode(GetVerificationCodeId(code));
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+
+        public bool ProcessVerification(long userId)
+        {
+            //TODO: Get Code
+            //return ProcessVerification(code)
+            return true;
+        }
+
+        public bool ProcessVerification(long verificationId, long userId)
+        {
+            if (new NutzerModel().VerifyUser(userId) > 0)
+            {
+                ProcessEmailChange(verificationId, userId);
+                ProcessBooking(userId);
                 return true;
             }
             else

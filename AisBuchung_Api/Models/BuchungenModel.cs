@@ -63,7 +63,12 @@ namespace AisBuchung_Api.Models
             var userId = new NutzerModel().PostUser(bookingPost.ToUserPost());
             var d = bookingPost.ToDictionary();
             d.Add("Nutzer", userId.ToString());
-            return databaseManager.ExecutePost("Buchungen", d) != -1;
+            var id = databaseManager.ExecutePost("Buchungen", d);
+            if (ConfigManager.CheckIfVerificationIsAutomatic())
+            {
+                new EmailverifizierungenModel().ProcessVerification(userId);
+            }
+            return id != -1;
         }
 
         public string GetEventId(string eventUid)

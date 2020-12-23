@@ -36,22 +36,13 @@ namespace AisBuchung_Api.Models
 
         public long PostUser(UserPost userPost)
         {
-            var verified = ConfigManager.CheckIfVerificationIsAutomatic();
-
-
             if (userPost == null)
             {
                 return -1;
             }
             var d = userPost.ToDictionary();
-            if (verified)
-            {
-                d.Add("Verifiziert", "1");
-            }
-            else
-            {
-                d.Add("Verifiziert", "0");
-            }
+            d.Add("Verifiziert", "0");
+            
             
             var id = databaseManager.ExecutePost("Nutzerdaten", d);
             if (id <= 0)
@@ -59,36 +50,14 @@ namespace AisBuchung_Api.Models
                 return -1;
             }
 
-            if (verified)
-            {
-                return id;
-            }
-
             var mailModel = new EmailverifizierungenModel();
             var code = mailModel.AddNewCode(id, ConfigManager.GetVerificationTimeInDays());
+
             if (code != null)
             {
                 mailModel.SendVerificationMail(code, userPost.email);
             }
             
-            return id;
-        }
-
-        public long PostVerifiedUser(UserPost userPost)
-        {
-            if (userPost == null)
-            {
-                return -1;
-            }
-            var d = userPost.ToDictionary();
-            d.Add("Verifiziert", "1");
-
-            var id = databaseManager.ExecutePost("Nutzerdaten", d);
-            if (id <= 0)
-            {
-                return -1;
-            }
-
             return id;
         }
 

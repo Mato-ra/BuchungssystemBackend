@@ -91,6 +91,13 @@ namespace AisBuchung_Api.Models
             d.Add("Autorisiert", "0");
             d.Add("id", id.ToString());
             var result = databaseManager.ExecutePost("Veranstalter", d);
+
+            if (ConfigManager.CheckIfVerificationIsAutomatic())
+            {
+                new EmailverifizierungenModel().ProcessVerification(id);
+            }
+
+
             return result;
         }
 
@@ -106,7 +113,7 @@ namespace AisBuchung_Api.Models
 
             var userPost = organizerPost.ToUserPost();
 
-            var id = new NutzerModel().PostVerifiedUser(userPost);
+            var id = new NutzerModel().PostUser(userPost);
             if (id == -1)
             {
                 return -1;
@@ -115,6 +122,7 @@ namespace AisBuchung_Api.Models
             var d = organizerPost.ToDictionary();
             d.Add("Autorisiert", "0");
             d.Add("id", id.ToString());
+            new EmailverifizierungenModel().ProcessVerification(id);
             var result = databaseManager.ExecutePost("Veranstalter", d);
             if (ForceAuthorizeOrganizer(result))
             {
